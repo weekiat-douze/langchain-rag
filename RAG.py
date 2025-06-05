@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 # Initial Setup
 import getpass
 import os
@@ -16,13 +19,14 @@ from langgraph.graph import START, StateGraph # LangGraph
 # Creating Prompt Template
 from langchain_core.prompts import PromptTemplate
 
+
 ##############################
 # Setting up model and tools #
 ##############################
 
 # API Key prompt
 if not os.environ.get("GOOGLE_API_KEY"):
-  os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter API key for Google Gemini: ")
+    os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter API key for Google Gemini: ")
 
 
 llm = init_chat_model("gemini-2.0-flash", model_provider="google_genai") # Chat Model
@@ -122,7 +126,7 @@ graph = graph_builder.compile() # Actually building the flow
 #########################
 # Using the Application #
 #########################
-result = graph.invoke({"question": "What is Task Decomposition?"})
+# result = graph.invoke({"question": "What is Task Decomposition?"})
 
-print(f'Context: {result["context"]}\n\n')
-print(f'Answer: {result["answer"]}')
+# print(f'Context: {result["context"]}\n\n')
+# print(f'Answer: {result["answer"]}')
