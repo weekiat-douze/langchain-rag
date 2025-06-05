@@ -147,8 +147,13 @@ graph = graph_builder.compile()
 #########################
 # Using the Application #
 #########################
-result = graph.invoke({"question": "What is Task Decomposition?"})
+# result = graph.invoke({"question": "What is Task Decomposition?"})
 
-print(f'Section: {result["query"]}\n\n')
-print(f'Context: {result["context"]}\n\n')
-print(f'Answer: {result["answer"]}')
+# print(f'Section: {result["query"]}\n\n')
+# print(f'Context: {result["context"]}\n\n')
+# print(f'Answer: {result["answer"]}')
+for step in graph.stream(
+    {"question": "What does the end of the post say about Task Decomposition?"},
+    stream_mode="updates",
+):
+    print(f"{step}\n\n----------------\n") # Each iteration
