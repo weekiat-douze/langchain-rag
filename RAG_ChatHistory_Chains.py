@@ -26,6 +26,8 @@ from langchain_core.tools import tool  # For creating tool
 from langchain_core.messages import SystemMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import END
+# For LangChain persistence — checkpointer
+from langgraph.checkpoint.memory import MemorySaver
 
 ##############################
 # Setting up model and tools #
@@ -141,6 +143,7 @@ def generate(state: MessagesState):
 
 
 # Set up graph flow for the application
+
 graph_builder = StateGraph(MessagesState)
 graph_builder.add_node(query_or_respond)
 graph_builder.add_node(tools)
@@ -150,20 +153,25 @@ graph_builder.set_entry_point("query_or_respond") # this eqvuialent to add_edge(
 graph_builder.add_conditional_edges("query_or_respond", tools_condition, {END: END, "tools": "tools"})
 graph_builder.add_edge("tools", "generate")
 graph_builder.add_edge("generate", END)
-graph = graph_builder.compile() 
+
+memory = MemorySaver() # for persistence
+graph = graph_builder.compile(checkpointer=memory) 
+
+# Specify an ID for the thread — persistence
+config = {"configurable": {"thread_id": "abc123"}}
 
 
 
 #########################
 # Using the Application #
 #########################
-input_message = "Hello"
+# input_message = "Hello"
 
-for step in graph.stream(
-    {"messages": [{"role": "user", "content": input_message}]},
-    stream_mode="values",
-):
-    step["messages"][-1].pretty_print()
+# for step in graph.stream(
+#     {"messages": [{"role": "user", "content": input_message}]},
+#     stream_mode="values",
+# ):
+#     step["messages"][-1].pretty_print()
     
     
 input_message = "What is Task Decomposition?"
@@ -171,5 +179,15 @@ input_message = "What is Task Decomposition?"
 for step in graph.stream(
     {"messages": [{"role": "user", "content": input_message}]},
     stream_mode="values",
+    config=config,
+):
+    step["messages"][-1].pretty_print()
+    
+input_message = "Can you look up some common ways of doing it?"
+
+for step in graph.stream(
+    {"messages": [{"role": "user", "content": input_message}]},
+    stream_mode="values",
+    config=config,
 ):
     step["messages"][-1].pretty_print()
