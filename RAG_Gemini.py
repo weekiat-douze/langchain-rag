@@ -56,10 +56,6 @@ print(f"Doc Titles: {document_titles}")
 
 
 # Defining Document Retrieval Tool
-@tool(response_format="content")
-def processed_documents():
-    """Gets list of document titles that we have processed that can be used during retrieve_info"""
-    return document_titles
 
 @tool(response_format="content_and_artifact")
 def retrieve_info(query: str):
@@ -70,10 +66,10 @@ def retrieve_info(query: str):
 
 
 # Create Agent with Persistence
-system_prompt = "Check if the query is related to list of documents we have processed then, as much as possible, utilise the retrieve_info tool to answer the user's question"
+system_prompt = f"You are given these documents {document_titles}.\n Determine if they are relevant to the question and, as much as possible, utilise the retrieve_info tool to answer the user's question"
 
 memory = MemorySaver()
-agent_executor = create_react_agent(llm, [processed_documents, retrieve_info], checkpointer=memory, prompt=system_prompt)
+agent_executor = create_react_agent(llm, [retrieve_info], checkpointer=memory, prompt=system_prompt)
 config = {"configurable": {"thread_id": "def234"}}
 
 while True:
